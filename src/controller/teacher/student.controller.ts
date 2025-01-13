@@ -195,4 +195,5 @@ export default {
 	getCommonStudents,
 	suspend,
 	getNotificationReceipents,
+	extractEmailsFromString,
 };
