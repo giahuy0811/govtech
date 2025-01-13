@@ -1,12 +1,20 @@
 import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import { v4 } from 'uuid';
-import { EXPRESS_PORT, HTTP_STATUS_CODE } from './constants';
+import swaggerUi from 'swagger-ui-express';
+import apiOptions from './swagger';
+import swaggerJSDoc from 'swagger-jsdoc';
+import { EXPRESS_PORT, HTTP_STATUS_CODE, ROLE } from './constants';
 import authRouter from './routes/auth/auth.route';
 import seedRouter from './routes/seed/seed.route';
 import { AppDataSource } from './database/data-source';
+import teacherRouter from './routes/teacher/teacher.route';
+import authMiddleware from './middleware/auth.middleware';
+import roleMiddleware from './middleware/role.middleware';
 
 const app = express();
+const swaggerSpec = swaggerJSDoc(apiOptions);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -15,12 +23,20 @@ app.use(
 		methods: '*',
 	})
 );
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/', (_: Request, res: Response) => {
 	res.send('Govtech app');
 });
 
-app.use('/api/auth', authRouter);
 app.use('/api/seed', seedRouter);
+app.use('/api/auth', authRouter);
+app.use(
+	'/api/teacher',
+	authMiddleware,
+	roleMiddleware([ROLE.TEACHER]),
+	teacherRouter
+);
 
 app.use((err: any, _: Request, res: Response, next: NextFunction): any => {
 	const correlationId = v4();
