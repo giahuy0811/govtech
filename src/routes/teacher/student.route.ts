@@ -55,12 +55,8 @@ const studentRouter = express.Router();
  *                                  data:
  *                                      type: object
  *                                      properties:
- *                                          id:
- *                                            type: string
- *                                          accessToken:
- *                                            type: string
- *                                          refreshToken:
- *                                            type: string
+ *                                          success:
+ *                                            type: boolean
  *              400:
  *                  description: Bad request
  *              500:
@@ -87,7 +83,7 @@ studentRouter.post(
  *                 schema:
  *                  type: string
  *          responses:
- *              201:
+ *              200:
  *                  description: Success
  *                  content:
  *                      application/json:
@@ -97,7 +93,14 @@ studentRouter.post(
  *                                  correlationId:
  *                                    type: string
  *                                  data:
- *                                    type: array
+ *                                      type: object
+ *                                      properties:
+ *                                          students:
+ *                                            type: array
+ *                                            items:
+ *                                              type: string
+ *                                              example: studenthon@gmail.com
+ *                                     
  *              404:
  *                  description: Not found
  *              500:
@@ -127,11 +130,56 @@ studentRouter.get(
  *                                  example: teacher@gmail.com
  *                                  required: true
  *                              students:
- *                                  type: array
- *                                  example: string
- *                                  items:
- *                                   type: string
- *                                   example: student@gmail.com
+ *                                  type: string
+ *                                  example: studentjon@gmail.com
+ *          responses:
+ *              200:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  correlationId:
+ *                                      type: string
+ *                                  data:
+ *                                      type: object
+ *                                      properties:
+ *                                          suspended:
+ *                                            type: boolean
+ *                                            example: true
+ *              400:
+ *                  description: Bad request
+ *              500:
+ *                  description: Internal server error
+ */
+studentRouter.put(
+	'/suspend',
+	validator.body(SuspendStudentSchema),
+	expressAsyncHandler(studentController.suspend)
+);
+
+/**
+ * @swagger
+ * /api/teacher/student/get-notification-receipents:
+ *      post:
+ *          summary: Get notification receipents
+ *          tags:
+ *              - Student
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              teacher:
+ *                                  type: string
+ *                                  example: teacher@gmail.com
+ *                                  required: true
+ *                              students:
+ *                                  type: string
+ *                                  example: Hello students! @studenthon@gmail.com studentjon@gmail.com
  *                                  required: true
  *          responses:
  *              200:
@@ -143,27 +191,21 @@ studentRouter.get(
  *                              properties:
  *                                  correlationId:
  *                                      type: string
- *                                  status:
- *                                      type: number
- *                                  error:
- *                                      type: 'null'
  *                                  data:
  *                                      type: object
  *                                      properties:
- *                                          id:
- *                                            type: string
- *                                          accessToken:
- *                                            type: string
- *                                          refreshToken:
- *                                            type: string
+ *                                          receipents:
+ *                                            type: array
+ *                                            items:
+ *                                              type: string
+ *                                              example: studenthon@gmail.com
  *              400:
  *                  description: Bad request
  *              500:
  *                  description: Internal server error
  */
-studentRouter.put(
-	'/suspend',
-	validator.body(SuspendStudentSchema),
-	expressAsyncHandler(studentController.suspend)
+studentRouter.post(
+	'/get-notification-receipents',
+	expressAsyncHandler(studentController.getNotificationReceipents)
 );
 export default studentRouter;
