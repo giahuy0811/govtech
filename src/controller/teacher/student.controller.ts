@@ -48,4 +48,44 @@ const register = async (req: Request, res: Response): Promise<any> => {
 	}
 };
 
-export default { register };
+const getCommonStudents = async (req: Request, res: Response): Promise<any> => {
+	const correlationId = v4();
+
+	const { teacher } = req.query;
+
+	try {
+		const teachers = Array.isArray(teacher) ? teacher : [teacher];
+
+		const userRepository = AppDataSource.getRepository(User);
+
+		const result = await userRepository
+			.createQueryBuilder('teacher')
+			.leftJoin('teacher.students', 'student')
+			.where('teacher.role = :role', { role: ROLE.TEACHER })
+			.andWhere('teacher.email IN (:...teachers)', { teachers })
+			.select(['teacher.email', 'student.email'])
+			.getMany();
+
+		return ApiResponseModel.toSuccess(
+			res,
+			{
+				students: mapTeacherEntitiesToStudentList(result),
+			},
+			correlationId
+		);
+	} catch (error) {
+		return ApiResponseModel.toInternalServer(res, correlationId);
+	}
+};
+
+function mapTeacherEntitiesToStudentList(data: User[]) {
+	if (data.length === 0) return [];
+
+	const studentList = data.flatMap((teacher) =>
+		teacher.students.map((student) => student.email)
+	);
+
+	return studentList;
+}
+
+export default { register, getCommonStudents };
