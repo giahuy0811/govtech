@@ -3,6 +3,8 @@ import validation from 'express-joi-validation';
 import expressAsyncHandler from 'express-async-handler';
 import studentController from '../../controller/teacher/student.controller';
 import {
+	GetCommonStudentsSchema,
+	GetNotificationReceipentsSchema,
 	RegisterStudentSchema,
 	SuspendStudentSchema,
 } from '../../validation/teacher/student.validation';
@@ -108,6 +110,7 @@ studentRouter.post(
  */
 studentRouter.get(
 	'/get-common-students',
+	validator.query(GetCommonStudentsSchema),
 	expressAsyncHandler(studentController.getCommonStudents)
 );
 
@@ -206,6 +209,7 @@ studentRouter.put(
  */
 studentRouter.post(
 	'/get-notification-receipents',
+	validator.body(GetNotificationReceipentsSchema),
 	expressAsyncHandler(studentController.getNotificationReceipents)
 );
 export default studentRouter;
