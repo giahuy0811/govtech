@@ -172,8 +172,12 @@ const getNotificationReceipents = async (
 function mapTeacherEntitiesToStudentList(data: User[]) {
 	if (data.length === 0) return [];
 
-	const studentList = data.flatMap((teacher) =>
-		teacher.students.map((student) => student.email)
+	const studentList = Array.from(
+		new Set(
+			data.flatMap((teacher) =>
+				teacher.students.map((student) => student.email)
+			)
+		)
 	);
 
 	return studentList;
