@@ -88,4 +88,42 @@ function mapTeacherEntitiesToStudentList(data: User[]) {
 	return studentList;
 }
 
-export default { register, getCommonStudents };
+const suspend = async (req: Request, res: Response): Promise<any> => {
+	const correlationId = v4();
+	try {
+		const { student } = req.body;
+
+		const userRepository = AppDataSource.getRepository(User);
+
+		const studentEntity = await userRepository.findOne({
+			where: {
+				email: student,
+				role: ROLE.STUDENT,
+			},
+		});
+
+		if (studentEntity === null)
+			return ApiResponseModel.toBadRequest(
+				res,
+				BUSINESS_MESSAGE.INVALID_STUDENT,
+				correlationId
+			);
+
+		studentEntity.suspended = true;
+
+		await userRepository.save(studentEntity);
+
+		return ApiResponseModel.toSuccess(
+			res,
+			{
+				studentId: student.id,
+				suspended: studentEntity.suspended,
+			},
+			correlationId
+		);
+	} catch (error) {
+		return ApiResponseModel.toInternalServer(res, correlationId);
+	}
+};
+
+export default { register, getCommonStudents, suspend };

@@ -2,7 +2,10 @@ import express from 'express';
 import validation from 'express-joi-validation';
 import expressAsyncHandler from 'express-async-handler';
 import studentController from '../../controller/teacher/student.controller';
-import { RegisterStudentSchema } from '../../validation/teacher/student.validation';
+import {
+	RegisterStudentSchema,
+	SuspendStudentSchema,
+} from '../../validation/teacher/student.validation';
 
 const validator = validation.createValidator({
 	passError: true,
@@ -105,4 +108,62 @@ studentRouter.get(
 	expressAsyncHandler(studentController.getCommonStudents)
 );
 
+/**
+ * @swagger
+ * /api/teacher/student/suspend:
+ *      put:
+ *          summary: Suspend a specified student.
+ *          tags:
+ *              - Student
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              teacher:
+ *                                  type: string
+ *                                  example: teacher@gmail.com
+ *                                  required: true
+ *                              students:
+ *                                  type: array
+ *                                  example: string
+ *                                  items:
+ *                                   type: string
+ *                                   example: student@gmail.com
+ *                                  required: true
+ *          responses:
+ *              200:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  correlationId:
+ *                                      type: string
+ *                                  status:
+ *                                      type: number
+ *                                  error:
+ *                                      type: 'null'
+ *                                  data:
+ *                                      type: object
+ *                                      properties:
+ *                                          id:
+ *                                            type: string
+ *                                          accessToken:
+ *                                            type: string
+ *                                          refreshToken:
+ *                                            type: string
+ *              400:
+ *                  description: Bad request
+ *              500:
+ *                  description: Internal server error
+ */
+studentRouter.put(
+	'/suspend',
+	validator.body(SuspendStudentSchema),
+	expressAsyncHandler(studentController.suspend)
+);
 export default studentRouter;
