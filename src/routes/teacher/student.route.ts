@@ -69,4 +69,40 @@ studentRouter.post(
 	expressAsyncHandler(studentController.register)
 );
 
+/**
+ * @swagger
+ * /api/teacher/student/get-common-students:
+ *      get:
+ *          summary: Get common students by given list of teachers
+ *          tags:
+ *              - Student
+ *          parameters:
+ *               - name: teacher
+ *                 in: query
+ *                 required: true
+ *                 example: teacherken@gmail.com
+ *                 schema:
+ *                  type: string
+ *          responses:
+ *              201:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  correlationId:
+ *                                    type: string
+ *                                  data:
+ *                                    type: array
+ *              404:
+ *                  description: Not found
+ *              500:
+ *                  description: Internal server error
+ */
+studentRouter.get(
+	'/get-common-students',
+	expressAsyncHandler(studentController.getCommonStudents)
+);
+
 export default studentRouter;
