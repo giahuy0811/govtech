@@ -40,3 +40,14 @@ export enum ROLE {
 	TEACHER = 'teacher',
 	STUDENT = 'student',
 }
+
+export enum BUSINESS_MESSAGE {
+	UNAUTHORZIED = 'unauthorzied',
+	INTERNAL_SERVER = 'internalServer',
+	INVALID_SIGN_IN = 'invalidEmailOrPassword',
+	INVALID_EMAIL = 'invalidEmail',
+	INVALID_PASSWORD = 'invalidEmail',
+	FORBIDDEN = 'forbidden',
+	INVALID_TEACHER = 'invalidTeacher',
+	INVALID_STUDENT = 'invalidSTUDENT',
+}
