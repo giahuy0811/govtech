@@ -1,12 +1,8 @@
 import express from 'express';
-import validation from 'express-joi-validation';
 import { SignInSchema } from '../../validation/auth/auth.validation';
 import authController from '../../controller/auth/auth.controller';
 import asyncHandlerMiddleware from '../../middleware/async-handler.middleware';
-
-const validator = validation.createValidator({
-	passError: true,
-});
+import { validator } from '../../middleware/validator.middleware';
 
 const authRouter = express.Router();
 

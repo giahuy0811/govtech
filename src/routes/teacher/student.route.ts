@@ -1,5 +1,4 @@
 import express from 'express';
-import validation from 'express-joi-validation';
 import studentController from '../../controller/teacher/student.controller';
 import {
 	GetCommonStudentsSchema,
@@ -8,10 +7,7 @@ import {
 	SuspendStudentSchema,
 } from '../../validation/teacher/student.validation';
 import asyncHandlerMiddleware from '../../middleware/async-handler.middleware';
-
-const validator = validation.createValidator({
-	passError: true,
-});
+import { validator } from '../../middleware/validator.middleware';
 
 const studentRouter = express.Router();
 

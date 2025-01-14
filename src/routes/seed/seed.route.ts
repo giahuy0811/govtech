@@ -1,9 +1,9 @@
 import express from 'express';
-import expressAsyncHandler from 'express-async-handler';
 import seedController from '../../controller/seed/seed.controller';
+import asyncHandlerMiddleware from '../../middleware/async-handler.middleware';
 
 const seedRouter = express.Router();
 
-seedRouter.post('/', expressAsyncHandler(seedController.seed));
+seedRouter.post('/', asyncHandlerMiddleware(seedController.seed));
 
 export default seedRouter;
