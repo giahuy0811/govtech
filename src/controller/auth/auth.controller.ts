@@ -57,6 +57,7 @@ const signIn = async (
 			correlationId
 		);
 	} catch (error) {
+		console.log(error);
 		return ApiResponseModel.toInternalServer(res, correlationId);
 	}
 };

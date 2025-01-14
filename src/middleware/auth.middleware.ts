@@ -7,15 +7,17 @@ const authMiddleware = (
 	req: Request,
 	res: Response,
 	next: NextFunction
-): any => {
+): void => {
 	const correlationId = v4();
 	const token = req.header('Authorization')?.split(' ')[1];
 
 	if (!token) {
-		return res.status(HTTP_STATUS_CODE.UNAUTHORZIED).json({
+		res.status(HTTP_STATUS_CODE.UNAUTHORZIED).json({
 			correlationId,
 			error: BUSINESS_MESSAGE.UNAUTHORZIED,
 		});
+
+		return;
 	}
 
 	try {
@@ -25,7 +27,8 @@ const authMiddleware = (
 
 		next();
 	} catch (error) {
-		return res.status(HTTP_STATUS_CODE.UNAUTHORZIED).json({
+		console.log(error);
+		res.status(HTTP_STATUS_CODE.UNAUTHORZIED).json({
 			correlationId,
 			error: BUSINESS_MESSAGE.UNAUTHORZIED,
 		});

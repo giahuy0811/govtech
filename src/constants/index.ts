@@ -16,7 +16,7 @@ export const DATABASE = {
 };
 
 export type UserAuth = {
-	id: string;
+	id: number;
 	role: string;
 	email: string;
 };
@@ -46,7 +46,7 @@ export enum BUSINESS_MESSAGE {
 	INTERNAL_SERVER = 'internalServer',
 	INVALID_SIGN_IN = 'invalidEmailOrPassword',
 	INVALID_EMAIL = 'invalidEmail',
-	INVALID_PASSWORD = 'invalidEmail',
+	INVALID_PASSWORD = 'invalidPassword',
 	FORBIDDEN = 'forbidden',
 	INVALID_TEACHER = 'invalidTeacher',
 	INVALID_STUDENT = 'invalidStudent',

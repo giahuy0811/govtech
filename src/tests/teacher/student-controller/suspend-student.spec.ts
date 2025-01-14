@@ -4,6 +4,7 @@ import { BUSINESS_MESSAGE, ROLE } from '../../../constants';
 import studentController from '../../../controller/teacher/student.controller';
 import { User } from '../../../entities/user.entity';
 import { ApiResponseModel } from '../../../utils/response.util';
+import { Repository } from 'typeorm';
 
 jest.mock('uuid', () => ({
 	v4: jest.fn(() => 'test-correlation-id'),
@@ -14,7 +15,7 @@ jest.mock('../../../utils/response.util');
 describe('suspend', () => {
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
-	let mockUserRepository: any;
+	let mockUserRepository: jest.Mocked<Partial<Repository<User>>>;
 
 	beforeEach(() => {
 		mockRequest = {
@@ -45,8 +46,8 @@ describe('suspend', () => {
 			suspended: false,
 		};
 
-		mockUserRepository.findOne.mockResolvedValue(mockStudent);
-		mockUserRepository.save.mockResolvedValue({
+		(mockUserRepository.findOne as jest.Mock).mockResolvedValue(mockStudent);
+		(mockUserRepository.save as jest.Mock).mockResolvedValue({
 			...mockStudent,
 			suspended: true,
 		});
@@ -79,7 +80,7 @@ describe('suspend', () => {
 	});
 
 	it('should return bad request if student is not found', async () => {
-		mockUserRepository.findOne.mockResolvedValue(null);
+		(mockUserRepository.findOne as jest.Mock).mockResolvedValue(null);
 
 		await studentController.suspend(
 			mockRequest as Request,
@@ -102,7 +103,9 @@ describe('suspend', () => {
 	});
 
 	it('should handle internal server error', async () => {
-		mockUserRepository.findOne.mockRejectedValue(new Error('Database error'));
+		(mockUserRepository.findOne as jest.Mock).mockRejectedValue(
+			new Error('Database error')
+		);
 
 		await studentController.suspend(
 			mockRequest as Request,

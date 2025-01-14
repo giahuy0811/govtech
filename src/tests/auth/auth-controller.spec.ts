@@ -6,6 +6,8 @@ import bcrypt from 'bcrypt';
 import { BUSINESS_MESSAGE } from '../../constants';
 import { v4 } from 'uuid';
 import authController from '../../controller/auth/auth.controller';
+import { FindOptionsWhere, Repository } from 'typeorm';
+import { User } from '../../entities/user.entity';
 
 jest.mock('../../database/data-source');
 jest.mock('../../utils/response.util');
@@ -13,10 +15,10 @@ jest.mock('../../services/jwt.service');
 jest.mock('bcrypt');
 jest.mock('uuid', () => ({ v4: jest.fn() }));
 
+let userRepository: jest.Mocked<Partial<Repository<User>>>;
 describe('signIn', () => {
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
-	let userRepository: any;
 
 	beforeEach(() => {
 		mockRequest = {
@@ -32,9 +34,14 @@ describe('signIn', () => {
 		};
 
 		userRepository = {
-			findOneBy: jest.fn(),
+			findOneBy: jest.fn() as jest.MockedFunction<
+      (where: FindOptionsWhere<User> | FindOptionsWhere<User>[]) => Promise<User | null>
+    >,
 			save: jest.fn(),
 		};
+	
+
+		userRepository = userRepository as jest.Mocked<Repository<User>>;
 
 		(AppDataSource.getRepository as jest.Mock).mockReturnValue(userRepository);
 		(v4 as jest.Mock).mockReturnValue('mocked-correlation-id');
@@ -45,7 +52,7 @@ describe('signIn', () => {
 	});
 
 	it('should return bad request if user is not found', async () => {
-		userRepository.findOneBy.mockResolvedValue(null);
+		(userRepository.findOneBy as jest.Mock).mockResolvedValue(null);
 
 		await authController.signIn(
 			mockRequest as Request,
@@ -60,7 +67,7 @@ describe('signIn', () => {
 	});
 
 	it('should return bad request if password is invalid', async () => {
-		userRepository.findOneBy.mockResolvedValue({
+		(userRepository.findOneBy as jest.Mock).mockResolvedValue({
 			email: 'test@example.com',
 			password: 'hashedpassword',
 		});
@@ -87,7 +94,7 @@ describe('signIn', () => {
 			refreshToken: '',
 		};
 
-		userRepository.findOneBy.mockResolvedValue(user);
+		(userRepository.findOneBy as jest.Mock).mockResolvedValue(user);
 		(bcrypt.compareSync as jest.Mock).mockReturnValue(true);
 		(jwtService.generateAccessToken as jest.Mock).mockReturnValue(
 			'mocked-access-token'
@@ -116,7 +123,7 @@ describe('signIn', () => {
 	});
 
 	it('should handle internal server error gracefully', async () => {
-		userRepository.findOneBy.mockRejectedValue(new Error('Database error'));
+		(userRepository.findOneBy as jest.Mock).mockRejectedValue(new Error('Database error'));
 
 		await authController.signIn(
 			mockRequest as Request,
