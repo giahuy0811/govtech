@@ -6,11 +6,8 @@ export class ApiResponseModel {
 		return res.status(204).json();
 	}
 
-	static toSuccess<T>(res: Response, data: T, correlationId: string): Response {
-		return res.status(200).json({
-			correlationId,
-			data,
-		});
+	static toSuccess<T>(res: Response, data: T): Response {
+		return res.status(200).json(data);
 	}
 
 	static toBadRequest(res: Response, message: string): Response {

@@ -1,6 +1,8 @@
+import { In } from 'typeorm';
 import { AppDataSource } from '../database/data-source';
 import { Student } from '../entities/student.entity';
 import { Teacher } from '../entities/teacher.entity';
+import { TeacherStudent } from '../entities/teacher-student.entity';
 
 const findByEmail = async (email: string): Promise<Teacher | null> => {
 	try {
@@ -15,19 +17,41 @@ const findByEmail = async (email: string): Promise<Teacher | null> => {
 	}
 };
 
+const findByEmails = async (emails: string[]) => {
+	try {
+		const repository = AppDataSource.getRepository(Teacher);
+
+		const teachers = await repository.find({
+			where: {
+				email: In(emails),
+			},
+		});
+
+		return teachers;
+	} catch (error) {
+		return [];
+	}
+};
+
 const registerStudents = async (email: string, students: Student[]) => {
-	const repository = AppDataSource.getRepository(Teacher);
-	const teacher = await repository.findOneBy({
-		email,
+	const teacherStudentRepository = AppDataSource.getRepository(TeacherStudent);
+
+	const teacher = await findByEmail(email);
+
+	if (teacher === null) return false;
+
+	const teacherStudents = students.map((student) => {
+		const entity = new TeacherStudent();
+		entity.teacher = teacher;
+		entity.student = student;
+
+		return entity;
 	});
 
-	if (!teacher) return false;
+	await teacherStudentRepository.save(teacherStudents);
 
-	teacher.students = students;
-
-	await repository.save(teacher);
 
 	return true;
 };
 
-export default { findByEmail, registerStudents };
+export default { findByEmail, registerStudents, findByEmails };

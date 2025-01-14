@@ -5,7 +5,6 @@ import swaggerUi from 'swagger-ui-express';
 import apiOptions from './swagger';
 import swaggerJSDoc from 'swagger-jsdoc';
 import { EXPRESS_PORT, HTTP_STATUS_CODE, ROLE } from './constants';
-import authRouter from './routes/auth/auth.route';
 import { AppDataSource } from './database/data-source';
 import teacherRouter from './routes/teacher/teacher.route';
 import authMiddleware from './middleware/auth.middleware';
@@ -30,7 +29,6 @@ app.get('/', (_: Request, res: Response) => {
 	res.send('Govtech app');
 });
 
-// app.use('/api/auth', authRouter);
 app.use('/api/seed', seedRouter);
 app.use('/api', authMiddleware, roleMiddleware([ROLE.TEACHER]), teacherRouter);
 

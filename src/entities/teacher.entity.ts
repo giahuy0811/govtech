@@ -1,9 +1,9 @@
-import { Entity, ManyToMany } from 'typeorm';
-import { Student } from './student.entity';
+import { Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { TeacherStudent } from './teacher-student.entity';
 
 @Entity()
 export class Teacher extends BaseEntity {
-	@ManyToMany(() => Student, (student) => student.teachers)
-	students: Student[];
+	@OneToMany(() => TeacherStudent, (teacherStudent) => teacherStudent.student)
+	teacherStudents: TeacherStudent[];
 }

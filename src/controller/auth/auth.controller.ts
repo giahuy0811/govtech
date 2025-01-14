@@ -46,14 +46,10 @@ const signIn = async (
 
 		const accessToken = jwtService.generateAccessToken(signTokenPayload);
 
-		return ApiResponseModel.toSuccess(
-			res,
-			{
-				accessToken,
-				refreshToken,
-			},
-			correlationId
-		);
+		return ApiResponseModel.toSuccess(res, {
+			accessToken,
+			refreshToken,
+		});
 	} catch (error) {
 		console.log(error);
 		return ApiResponseModel.toInternalServer(res, correlationId);
