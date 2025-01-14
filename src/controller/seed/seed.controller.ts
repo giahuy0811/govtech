@@ -5,8 +5,12 @@ import { Request, Response } from 'express';
 import { v4 } from 'uuid';
 import { ROLE } from '../../constants';
 import { ApiResponseModel } from '../../utils/response.util';
+import { ApiResponse } from '../../types';
 
-const seed = async (req: Request, res: Response): Promise<any> => {
+const seed = async (
+	req: Request,
+	res: Response
+): Promise<Response<ApiResponse<{ success: true }>>> => {
 	const correlationId = v4();
 	try {
 		const repository = AppDataSource.getRepository(User);
@@ -31,16 +35,18 @@ const seed = async (req: Request, res: Response): Promise<any> => {
 			},
 		];
 
-		for (const user of users) {
-			const hashedPassword = await bcrypt.hash(user.password, 10);
-
-			const userEntity = repository.create({
-				...user,
-				password: hashedPassword,
-			});
-
-			await repository.save(userEntity);
-		}
+		const hashedUsers = await Promise.all(
+			users.map(async (user) => {
+				const hashedPassword = await bcrypt.hash(user.password, 10);
+				return {
+					...user,
+					password: hashedPassword,
+				};
+			})
+		);
+		
+		const userEntities = repository.create(hashedUsers);
+		await repository.save(userEntities);
 
 		return ApiResponseModel.toSuccess(res, { success: true }, correlationId);
 	} catch (error) {
