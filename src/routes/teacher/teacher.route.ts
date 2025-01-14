@@ -3,5 +3,5 @@ import studentRouter from './student.route';
 
 const teacherRouter = express.Router();
 
-teacherRouter.use('/student', studentRouter);
+teacherRouter.use(studentRouter);
 export default teacherRouter;

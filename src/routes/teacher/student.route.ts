@@ -13,7 +13,7 @@ const studentRouter = express.Router();
 
 /**
  * @swagger
- * /api/teacher/student/register:
+ * /api/register:
  *      post:
  *          summary: Register student to a specified teacher
  *          tags:
@@ -68,7 +68,7 @@ studentRouter.post(
 
 /**
  * @swagger
- * /api/teacher/student/get-common-students:
+ * /api/commonstudents:
  *      get:
  *          summary: Get common students by given list of teachers
  *          tags:
@@ -105,15 +105,15 @@ studentRouter.post(
  *                  description: Internal server error
  */
 studentRouter.get(
-	'/get-common-students',
+	'/commonstudents',
 	validator.query(GetCommonStudentsSchema),
 	asyncHandlerMiddleware(studentController.getCommonStudents)
 );
 
 /**
  * @swagger
- * /api/teacher/student/suspend:
- *      put:
+ * /api/suspend:
+ *      post:
  *          summary: Suspend a specified student.
  *          tags:
  *              - Student
@@ -152,7 +152,7 @@ studentRouter.get(
  *              500:
  *                  description: Internal server error
  */
-studentRouter.put(
+studentRouter.post(
 	'/suspend',
 	validator.body(SuspendStudentSchema),
 	asyncHandlerMiddleware(studentController.suspend)
@@ -160,7 +160,7 @@ studentRouter.put(
 
 /**
  * @swagger
- * /api/teacher/student/get-notification-receipents:
+ * /api/retrievefornotifications:
  *      post:
  *          summary: Get notification receipents
  *          tags:
@@ -204,7 +204,7 @@ studentRouter.put(
  *                  description: Internal server error
  */
 studentRouter.post(
-	'/get-notification-receipents',
+	'/retrievefornotifications',
 	validator.body(GetNotificationReceipentsSchema),
 	asyncHandlerMiddleware(studentController.getNotificationReceipents)
 );

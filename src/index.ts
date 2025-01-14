@@ -30,12 +30,7 @@ app.get('/', (_: Request, res: Response) => {
 });
 
 app.use('/api/auth', authRouter);
-app.use(
-	'/api/teacher',
-	authMiddleware,
-	roleMiddleware([ROLE.TEACHER]),
-	teacherRouter
-);
+app.use('/api', authMiddleware, roleMiddleware([ROLE.TEACHER]), teacherRouter);
 
 app.use((err: unknown, _: Request, res: Response, next: NextFunction): void => {
 	const correlationId = v4();
