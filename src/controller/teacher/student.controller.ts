@@ -57,23 +57,29 @@ const getCommonStudents = async (
 	try {
 		const teachers = Array.isArray(teacher) ? teacher : [teacher];
 
-		const userRepository = AppDataSource.getRepository(User);
+		if (teachers.length == 0)
+			return ApiResponseModel.toBadRequest(
+				res,
+				BUSINESS_MESSAGE.INVALID_TEACHER
+			);
 
-		const result = await userRepository
-			.createQueryBuilder('teacher')
-			.leftJoin('teacher.students', 'student')
-			.where('teacher.role = :role', { role: ROLE.TEACHER })
-			.andWhere('teacher.email IN (:...teachers)', { teachers })
-			.select(['teacher.email', 'student.email'])
-			.getMany();
-
-		return ApiResponseModel.toSuccess(
-			res,
-			{
-				students: mapTeacherEntitiesToStudentList(result),
-			},
-			correlationId
+		const teacherEntities = await teacherService.findByEmails(
+			teachers as string[]
 		);
+
+		if (teacherEntities.length === 0)
+			return ApiResponseModel.toBadRequest(
+				res,
+				BUSINESS_MESSAGE.INVALID_TEACHER
+			);
+
+		const teacherIds = teacherEntities.map((item) => item.id);
+
+		const students = await studentService.getStudentsForTeachers(teacherIds);
+
+		return ApiResponseModel.toSuccess(res, {
+			students,
+		});
 	} catch (error) {
 		console.log(error);
 
@@ -108,14 +114,10 @@ const suspend = async (
 
 		await userRepository.save(studentEntity);
 
-		return ApiResponseModel.toSuccess(
-			res,
-			{
-				studentId: student.id,
-				suspended: studentEntity.suspended,
-			},
-			correlationId
-		);
+		return ApiResponseModel.toSuccess(res, {
+			studentId: student.id,
+			suspended: studentEntity.suspended,
+		});
 	} catch (error) {
 		console.log(error);
 
@@ -165,31 +167,13 @@ const getNotificationReceipents = async (
 
 		const emails = eligibleRecipients.map((student) => student.email);
 
-		return ApiResponseModel.toSuccess(
-			res,
-			{ recipients: emails },
-			correlationId
-		);
+		return ApiResponseModel.toSuccess(res, { recipients: emails });
 	} catch (error) {
 		console.log(error);
 
 		return ApiResponseModel.toInternalServer(res, correlationId);
 	}
 };
-
-function mapTeacherEntitiesToStudentList(data: User[]): string[] {
-	if (data.length === 0) return [];
-
-	const studentList = Array.from(
-		new Set(
-			data.flatMap((teacher) =>
-				teacher.students.map((student) => student.email)
-			)
-		)
-	);
-
-	return studentList;
-}
 
 function extractEmailsFromString(value: string): string[] {
 	return Array.from(
