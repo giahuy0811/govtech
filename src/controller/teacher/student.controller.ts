@@ -12,6 +12,8 @@ import {
 	RegisterStudentResponse,
 	SuspendStudentResponse,
 } from '../../types';
+import teacherService from '../../services/teacher.service';
+import studentService from '../../services/student.service';
 
 const register = async (
 	req: Request,
@@ -21,40 +23,25 @@ const register = async (
 	try {
 		const { teacher, students } = req.body;
 
-		const repository = AppDataSource.getRepository(User);
-
-		const teacherEntity = await repository.findOneBy({
-			email: teacher,
-			role: ROLE.TEACHER,
-		});
+		const teacherEntity = await teacherService.findByEmail(teacher);
 
 		if (teacherEntity === null)
 			return ApiResponseModel.toBadRequest(
 				res,
-				BUSINESS_MESSAGE.INVALID_TEACHER,
-				correlationId
+				BUSINESS_MESSAGE.INVALID_TEACHER
 			);
 
-		const studentEntities = await repository.find({
-			where: {
-				role: ROLE.STUDENT,
-				email: In(students),
-			},
-		});
+		const studentEntities = await studentService.findStudentsByEmails(students);
+		if (studentEntities.length === 0)
+			return ApiResponseModel.toBadRequest(
+				res,
+				BUSINESS_MESSAGE.INVALID_STUDENT
+			);
 
-		teacherEntity.students = studentEntities;
+		await teacherService.registerStudents(teacher, studentEntities);
 
-		await repository.save(teacherEntity);
-
-		return ApiResponseModel.toSuccess(
-			res,
-			{
-				success: true,
-			},
-			correlationId
-		);
+		return ApiResponseModel.toSuccessNoResponse(res);
 	} catch (error) {
-		console.log(error);
 		return ApiResponseModel.toInternalServer(res, correlationId);
 	}
 };
@@ -114,8 +101,7 @@ const suspend = async (
 		if (studentEntity === null)
 			return ApiResponseModel.toBadRequest(
 				res,
-				BUSINESS_MESSAGE.INVALID_STUDENT,
-				correlationId
+				BUSINESS_MESSAGE.INVALID_STUDENT
 			);
 
 		studentEntity.suspended = true;
@@ -157,8 +143,7 @@ const getNotificationReceipents = async (
 		if (!teacherEntity)
 			return ApiResponseModel.toBadRequest(
 				res,
-				BUSINESS_MESSAGE.INVALID_TEACHER,
-				correlationId
+				BUSINESS_MESSAGE.INVALID_TEACHER
 			);
 
 		const registeredStudentEmails = teacherEntity.students

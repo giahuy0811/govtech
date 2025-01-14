@@ -2,6 +2,10 @@ import { Response } from 'express';
 import { BUSINESS_MESSAGE } from '../constants';
 
 export class ApiResponseModel {
+	static toSuccessNoResponse(res: Response): Response {
+		return res.status(204).json();
+	}
+
 	static toSuccess<T>(res: Response, data: T, correlationId: string): Response {
 		return res.status(200).json({
 			correlationId,
@@ -9,14 +13,9 @@ export class ApiResponseModel {
 		});
 	}
 
-	static toBadRequest(
-		res: Response,
-		error: string,
-		correlationId: string
-	): Response {
+	static toBadRequest(res: Response, message: string): Response {
 		return res.status(400).json({
-			correlationId,
-			error,
+			message,
 		});
 	}
 
