@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '../../entities/user.entity';
 import { ApiResponseModel } from '../../utils/response.util';
-import { v4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import jwtService from '../../services/jwt.service';
 import { BUSINESS_MESSAGE } from '../../constants';
@@ -12,7 +11,6 @@ const signIn = async (
 	req: Request,
 	res: Response
 ): Promise<Response<ApiResponse<SignInResponse>>> => {
-	const correlationId = v4();
 	try {
 		const { email, password } = req.body;
 		const userRepository = AppDataSource.getRepository(User);
@@ -52,7 +50,7 @@ const signIn = async (
 		});
 	} catch (error) {
 		console.log(error);
-		return ApiResponseModel.toInternalServer(res, correlationId);
+		return ApiResponseModel.toInternalServer(res);
 	}
 };
 

@@ -16,9 +16,8 @@ export class ApiResponseModel {
 		});
 	}
 
-	static toInternalServer(res: Response, correlationId: string): Response {
+	static toInternalServer(res: Response): Response {
 		return res.status(500).json({
-			correlationId,
 			message: BUSINESS_MESSAGE.INTERNAL_SERVER,
 		});
 	}

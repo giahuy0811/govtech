@@ -1,9 +1,5 @@
 import { Request, Response } from 'express';
-import { In } from 'typeorm';
-import { v4 } from 'uuid';
-import { AppDataSource } from '../../database/data-source';
-import { User } from '../../entities/user.entity';
-import { BUSINESS_MESSAGE, ROLE } from '../../constants';
+import { BUSINESS_MESSAGE } from '../../constants';
 import { ApiResponseModel } from '../../utils/response.util';
 import {
 	ApiResponse,
@@ -19,7 +15,6 @@ const register = async (
 	req: Request,
 	res: Response
 ): Promise<Response<ApiResponse<RegisterStudentResponse>>> => {
-	const correlationId = v4();
 	try {
 		const { teacher, students } = req.body;
 
@@ -42,7 +37,9 @@ const register = async (
 
 		return ApiResponseModel.toSuccessNoResponse(res);
 	} catch (error) {
-		return ApiResponseModel.toInternalServer(res, correlationId);
+		console.log(error);
+
+		return ApiResponseModel.toInternalServer(res);
 	}
 };
 
@@ -50,8 +47,6 @@ const getCommonStudents = async (
 	req: Request,
 	res: Response
 ): Promise<Response<ApiResponse<GetCommonStudentsResponse>>> => {
-	const correlationId = v4();
-
 	const { teacher } = req.query;
 
 	try {
@@ -83,7 +78,7 @@ const getCommonStudents = async (
 	} catch (error) {
 		console.log(error);
 
-		return ApiResponseModel.toInternalServer(res, correlationId);
+		return ApiResponseModel.toInternalServer(res);
 	}
 };
 
@@ -91,7 +86,6 @@ const suspend = async (
 	req: Request,
 	res: Response
 ): Promise<Response<ApiResponse<SuspendStudentResponse>>> => {
-	const correlationId = v4();
 	try {
 		const { student } = req.body;
 
@@ -109,7 +103,7 @@ const suspend = async (
 	} catch (error) {
 		console.log(error);
 
-		return ApiResponseModel.toInternalServer(res, correlationId);
+		return ApiResponseModel.toInternalServer(res);
 	}
 };
 
@@ -117,49 +111,32 @@ const getNotificationReceipents = async (
 	req: Request,
 	res: Response
 ): Promise<Response<ApiResponse<GetNotificationRecipentsResponse>>> => {
-	const correlationId = v4();
-
 	try {
 		const { teacher, notification } = req.body;
 
-		const mentionedEmails = extractEmailsFromString(notification);
+		const teacherEntity = await teacherService.findByEmail(teacher);
 
-		const userRepository = AppDataSource.getRepository(User);
-		const teacherEntity = await userRepository.findOne({
-			where: { email: teacher },
-			relations: ['students'],
-		});
-
-		if (!teacherEntity)
+		if (teacherEntity === null)
 			return ApiResponseModel.toBadRequest(
 				res,
 				BUSINESS_MESSAGE.INVALID_TEACHER
 			);
 
-		const registeredStudentEmails = teacherEntity.students
-			.filter((student) => !student.suspended)
-			.map((student) => student.email);
+		const mentionedEmails = extractEmailsFromString(notification);
 
-		const allRecipients = Array.from(
-			new Set([...registeredStudentEmails, ...mentionedEmails])
+		if (mentionedEmails.length === 0)
+			return ApiResponseModel.toBadRequest(res, BUSINESS_MESSAGE.INVALID_EMAIL);
+
+		const recipients = await studentService.getStudentsForNotification(
+			teacherEntity.id,
+			mentionedEmails
 		);
 
-		const studentRepository = AppDataSource.getRepository(User);
-		const eligibleRecipients = await studentRepository.find({
-			where: {
-				email: In(allRecipients),
-				suspended: false,
-			},
-			select: ['email'],
-		});
-
-		const emails = eligibleRecipients.map((student) => student.email);
-
-		return ApiResponseModel.toSuccess(res, { recipients: emails });
+		return ApiResponseModel.toSuccess(res, { recipients });
 	} catch (error) {
 		console.log(error);
 
-		return ApiResponseModel.toInternalServer(res, correlationId);
+		return ApiResponseModel.toInternalServer(res);
 	}
 };
 

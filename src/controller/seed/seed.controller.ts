@@ -1,13 +1,11 @@
 import { AppDataSource } from '../../database/data-source';
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
-import { v4 } from 'uuid';
 import { ApiResponseModel } from '../../utils/response.util';
 import { Teacher } from '../../entities/teacher.entity';
 import { Student } from '../../entities/student.entity';
 
-const seed = async (req: Request, res: Response): Promise<any> => {
-	const correlationId = v4();
+const seed = async (_: Request, res: Response): Promise<Response> => {
 	try {
 		const teacherRepository = AppDataSource.getRepository(Teacher);
 		const teachers = [
@@ -46,7 +44,7 @@ const seed = async (req: Request, res: Response): Promise<any> => {
 				email: 'commonstudent1@gmail.com',
 				password: '123456@Aa',
 			},
-      {
+			{
 				name: 'Student1',
 				email: 'commonstudent2@gmail.com',
 				password: '123456@Aa',
@@ -74,10 +72,10 @@ const seed = async (req: Request, res: Response): Promise<any> => {
 			await studentRepository.save(studentEntity);
 		}
 
-		return ApiResponseModel.toSuccess(res, { success: true }, correlationId);
+		return ApiResponseModel.toSuccessNoResponse(res);
 	} catch (error) {
-    console.log(error)
-		return ApiResponseModel.toInternalServer(res, correlationId);
+		console.log(error);
+		return ApiResponseModel.toInternalServer(res);
 	}
 };
 
