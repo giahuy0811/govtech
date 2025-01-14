@@ -46,10 +46,38 @@ async function getStudentsForTeachers(teacherIds: number[]) {
 	return mapStudentsToEmailList(studentEntities);
 }
 
+async function findByEmail(email: string): Promise<Student | null> {
+	const repository = AppDataSource.getRepository(Student);
+
+	const student = await repository.findOneBy({
+		email,
+	});
+
+	return student;
+}
+
+async function suspendStudent(id: number) {
+	const repository = AppDataSource.getRepository(Student);
+
+	await repository.update(
+		{
+			id,
+		},
+		{
+			suspended: true,
+		}
+	);
+}
+
 function mapStudentsToEmailList(studentEntities: Student[]) {
 	if (studentEntities.length == 0) return [];
 
 	return studentEntities.map((item) => item.email);
 }
 
-export default { findStudentsByEmails, getStudentsForTeachers };
+export default {
+	findStudentsByEmails,
+	getStudentsForTeachers,
+	suspendStudent,
+	findByEmail,
+};
