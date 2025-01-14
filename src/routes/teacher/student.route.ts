@@ -1,6 +1,5 @@
 import express from 'express';
 import validation from 'express-joi-validation';
-import expressAsyncHandler from 'express-async-handler';
 import studentController from '../../controller/teacher/student.controller';
 import {
 	GetCommonStudentsSchema,
@@ -8,6 +7,7 @@ import {
 	RegisterStudentSchema,
 	SuspendStudentSchema,
 } from '../../validation/teacher/student.validation';
+import asyncHandlerMiddleware from '../../middleware/async-handler.middleware';
 
 const validator = validation.createValidator({
 	passError: true,
@@ -67,7 +67,7 @@ const studentRouter = express.Router();
 studentRouter.post(
 	'/register',
 	validator.body(RegisterStudentSchema),
-	expressAsyncHandler(studentController.register)
+	asyncHandlerMiddleware(studentController.register)
 );
 
 /**
@@ -102,7 +102,7 @@ studentRouter.post(
  *                                            items:
  *                                              type: string
  *                                              example: studenthon@gmail.com
- *                                     
+ *
  *              404:
  *                  description: Not found
  *              500:
@@ -111,7 +111,7 @@ studentRouter.post(
 studentRouter.get(
 	'/get-common-students',
 	validator.query(GetCommonStudentsSchema),
-	expressAsyncHandler(studentController.getCommonStudents)
+	asyncHandlerMiddleware(studentController.getCommonStudents)
 );
 
 /**
@@ -159,7 +159,7 @@ studentRouter.get(
 studentRouter.put(
 	'/suspend',
 	validator.body(SuspendStudentSchema),
-	expressAsyncHandler(studentController.suspend)
+	asyncHandlerMiddleware(studentController.suspend)
 );
 
 /**
@@ -210,6 +210,6 @@ studentRouter.put(
 studentRouter.post(
 	'/get-notification-receipents',
 	validator.body(GetNotificationReceipentsSchema),
-	expressAsyncHandler(studentController.getNotificationReceipents)
+	asyncHandlerMiddleware(studentController.getNotificationReceipents)
 );
 export default studentRouter;

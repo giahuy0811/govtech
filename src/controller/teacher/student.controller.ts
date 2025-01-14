@@ -5,8 +5,18 @@ import { AppDataSource } from '../../database/data-source';
 import { User } from '../../entities/user.entity';
 import { BUSINESS_MESSAGE, ROLE } from '../../constants';
 import { ApiResponseModel } from '../../utils/response.util';
+import {
+	ApiResponse,
+	GetCommonStudentsResponse,
+	GetNotificationRecipentsResponse,
+	RegisterStudentResponse,
+	SuspendStudentResponse,
+} from '../../types';
 
-const register = async (req: Request, res: Response): Promise<any> => {
+const register = async (
+	req: Request,
+	res: Response
+): Promise<Response<ApiResponse<RegisterStudentResponse>>> => {
 	const correlationId = v4();
 	try {
 		const { teacher, students } = req.body;
@@ -48,7 +58,10 @@ const register = async (req: Request, res: Response): Promise<any> => {
 	}
 };
 
-const getCommonStudents = async (req: Request, res: Response): Promise<any> => {
+const getCommonStudents = async (
+	req: Request,
+	res: Response
+): Promise<Response<ApiResponse<GetCommonStudentsResponse>>> => {
 	const correlationId = v4();
 
 	const { teacher } = req.query;
@@ -78,7 +91,10 @@ const getCommonStudents = async (req: Request, res: Response): Promise<any> => {
 	}
 };
 
-const suspend = async (req: Request, res: Response): Promise<any> => {
+const suspend = async (
+	req: Request,
+	res: Response
+): Promise<Response<ApiResponse<SuspendStudentResponse>>> => {
 	const correlationId = v4();
 	try {
 		const { student } = req.body;
@@ -119,7 +135,7 @@ const suspend = async (req: Request, res: Response): Promise<any> => {
 const getNotificationReceipents = async (
 	req: Request,
 	res: Response
-): Promise<any> => {
+): Promise<Response<ApiResponse<GetNotificationRecipentsResponse>>> => {
 	const correlationId = v4();
 
 	try {
@@ -169,7 +185,7 @@ const getNotificationReceipents = async (
 	}
 };
 
-function mapTeacherEntitiesToStudentList(data: User[]) {
+function mapTeacherEntitiesToStudentList(data: User[]): string[] {
 	if (data.length === 0) return [];
 
 	const studentList = Array.from(
@@ -183,7 +199,7 @@ function mapTeacherEntitiesToStudentList(data: User[]) {
 	return studentList;
 }
 
-function extractEmailsFromString(value: string) {
+function extractEmailsFromString(value: string): string[] {
 	return Array.from(
 		value.matchAll(/@([\w.+-]+@[\w-]+\.[\w.-]+)/g),
 		(m: string[]) => m[1]

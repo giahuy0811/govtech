@@ -6,8 +6,12 @@ import bcrypt from 'bcrypt';
 import jwtService from '../../services/jwt.service';
 import { BUSINESS_MESSAGE } from '../../constants';
 import { AppDataSource } from '../../database/data-source';
+import { ApiResponse, SignInResponse } from '../../types';
 
-const signIn = async (req: Request, res: Response): Promise<any> => {
+const signIn = async (
+	req: Request,
+	res: Response
+): Promise<Response<ApiResponse<SignInResponse>>> => {
 	const correlationId = v4();
 	try {
 		const { email, password } = req.body;
