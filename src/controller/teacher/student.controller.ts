@@ -95,14 +95,7 @@ const suspend = async (
 	try {
 		const { student } = req.body;
 
-		const userRepository = AppDataSource.getRepository(User);
-
-		const studentEntity = await userRepository.findOne({
-			where: {
-				email: student,
-				role: ROLE.STUDENT,
-			},
-		});
+		const studentEntity = await studentService.findByEmail(student);
 
 		if (studentEntity === null)
 			return ApiResponseModel.toBadRequest(
@@ -110,14 +103,9 @@ const suspend = async (
 				BUSINESS_MESSAGE.INVALID_STUDENT
 			);
 
-		studentEntity.suspended = true;
+		await studentService.suspendStudent(studentEntity.id);
 
-		await userRepository.save(studentEntity);
-
-		return ApiResponseModel.toSuccess(res, {
-			studentId: student.id,
-			suspended: studentEntity.suspended,
-		});
+		return ApiResponseModel.toSuccessNoResponse(res);
 	} catch (error) {
 		console.log(error);
 
