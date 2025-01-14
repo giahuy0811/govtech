@@ -58,7 +58,7 @@ app.use((err: unknown, _: Request, res: Response, next: NextFunction): void => {
 });
 
 const startServer = async () => {
-	AppDataSource.initialize().then(() => console.log('db connected'));
+	await AppDataSource.initialize().then(() => console.log('db connected'));
 	app.listen(EXPRESS_PORT, () => {
 		console.log(`Server is running on http://localhost:${EXPRESS_PORT}`);
 	});

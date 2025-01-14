@@ -4,73 +4,36 @@ import { Request, Response } from 'express';
 import { ApiResponseModel } from '../../utils/response.util';
 import { Teacher } from '../../entities/teacher.entity';
 import { Student } from '../../entities/student.entity';
+import teachers from '../../data/teachers.json';
+import students from '../../data/students.json';
 
 const seed = async (_: Request, res: Response): Promise<Response> => {
 	try {
 		const teacherRepository = AppDataSource.getRepository(Teacher);
-		const teachers = [
-			{
-				name: 'Ken',
-				email: 'teacherken@gmail.com',
-				password: '123456@Aa',
-			},
-		];
 
-		for (const teacher of teachers) {
+		const teacherPromises = teachers.map(async (teacher) => {
 			const hashedPassword = await bcrypt.hash(teacher.password, 10);
-
-			const userEntity = teacherRepository.create({
+			return teacherRepository.create({
 				...teacher,
 				password: hashedPassword,
 			});
+		});
 
-			await teacherRepository.save(userEntity);
-		}
+		const teacherEntities = await Promise.all(teacherPromises);
+		await teacherRepository.save(teacherEntities);
 
 		const studentRepository = AppDataSource.getRepository(Student);
-		const students = [
-			{
-				name: 'Jon',
-				email: 'studentjon@gmail.com',
-				password: '123456@Aa',
-			},
-			{
-				name: 'Hon',
-				email: 'studenthon@gmail.com',
-				password: '123456@Aa',
-			},
-			{
-				name: 'Student1',
-				email: 'commonstudent1@gmail.com',
-				password: '123456@Aa',
-			},
-			{
-				name: 'Student1',
-				email: 'commonstudent2@gmail.com',
-				password: '123456@Aa',
-			},
-			{
-				name: 'Student Only',
-				email: 'student_only_under_teacher_ken@gmail.com',
-				password: '123456@Aa',
-			},
-			{
-				name: 'Mary',
-				email: 'studentmary@gmail.com',
-				password: '123456@Aa',
-			},
-		];
 
-		for (const student of students) {
+		const studentPromises = students.map(async (student) => {
 			const hashedPassword = await bcrypt.hash(student.password, 10);
-
-			const studentEntity = studentRepository.create({
+			return studentRepository.create({
 				...student,
 				password: hashedPassword,
 			});
+		});
 
-			await studentRepository.save(studentEntity);
-		}
+		const studentEntities = await Promise.all(studentPromises);
+		await studentRepository.save(studentEntities);
 
 		return ApiResponseModel.toSuccessNoResponse(res);
 	} catch (error) {
