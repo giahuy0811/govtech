@@ -5,32 +5,24 @@ import { Teacher } from '../entities/teacher.entity';
 import { TeacherStudent } from '../entities/teacher-student.entity';
 
 const findByEmail = async (email: string): Promise<Teacher | null> => {
-	try {
-		const repository = AppDataSource.getRepository(Teacher);
-		const teacher = await repository.findOneBy({
-			email,
-		});
+	const repository = AppDataSource.getRepository(Teacher);
+	const teacher = await repository.findOneBy({
+		email,
+	});
 
-		return teacher;
-	} catch (error) {
-		return null;
-	}
+	return teacher;
 };
 
 const findByEmails = async (emails: string[]) => {
-	try {
-		const repository = AppDataSource.getRepository(Teacher);
+	const repository = AppDataSource.getRepository(Teacher);
 
-		const teachers = await repository.find({
-			where: {
-				email: In(emails),
-			},
-		});
+	const teachers = await repository.find({
+		where: {
+			email: In(emails),
+		},
+	});
 
-		return teachers;
-	} catch (error) {
-		return [];
-	}
+	return teachers;
 };
 
 const registerStudents = async (email: string, students: Student[]) => {
@@ -49,7 +41,6 @@ const registerStudents = async (email: string, students: Student[]) => {
 	});
 
 	await teacherStudentRepository.save(teacherStudents);
-
 
 	return true;
 };

@@ -1,23 +1,19 @@
-import { In } from 'typeorm';
+import { Brackets, In } from 'typeorm';
 import { AppDataSource } from '../database/data-source';
 import { Student } from '../entities/student.entity';
 import { TeacherStudent } from '../entities/teacher-student.entity';
 
-const findStudentsByEmails = async (emails: string[]): Promise<Student[]> => {
-	try {
-		const repository = AppDataSource.getRepository(Student);
+async function findStudentsByEmails(emails: string[]): Promise<Student[]> {
+	const repository = AppDataSource.getRepository(Student);
 
-		const studentEntities = await repository.find({
-			where: {
-				email: In(emails),
-			},
-		});
+	const studentEntities = await repository.find({
+		where: {
+			email: In(emails),
+		},
+	});
 
-		return studentEntities;
-	} catch (error) {
-		return [];
-	}
-};
+	return studentEntities;
+}
 
 async function getStudentsForTeachers(teacherIds: number[]) {
 	const teacherStudentRepository = AppDataSource.getRepository(TeacherStudent);
@@ -75,9 +71,34 @@ function mapStudentsToEmailList(studentEntities: Student[]) {
 	return studentEntities.map((item) => item.email);
 }
 
+async function getStudentsForNotification(
+	teacherId: number,
+	mentionedEmails: string[]
+) {
+	const studentRepository = AppDataSource.getRepository(Student);
+
+	const students = await studentRepository
+		.createQueryBuilder('student')
+		.leftJoin('student.teacherStudents', 'teacherStudent')
+		.where('student.suspended = false')
+		.andWhere(
+			new Brackets((qb) => {
+				qb.where('teacherStudent.teacher_id = :teacherId', {
+					teacherId: teacherId,
+				}).orWhere('student.email IN (:...mentionedEmails)', {
+					mentionedEmails,
+				});
+			})
+		)
+		.getMany();
+
+	return mapStudentsToEmailList(students);
+}
+
 export default {
 	findStudentsByEmails,
 	getStudentsForTeachers,
 	suspendStudent,
 	findByEmail,
+	getStudentsForNotification,
 };
