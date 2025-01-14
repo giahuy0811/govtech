@@ -7,12 +7,12 @@ import {
 	UserAuth,
 } from '../constants';
 
-const generateAccessToken = (payload: any) =>
+const generateAccessToken = (payload: Omit<UserAuth, 'email'>) =>
 	jwtService.sign(payload, JWT_SECRET!, {
 		expiresIn: JWT_ACCESS_TOKEN_EXPIRE,
 	});
 
-const generateRefreshToken = (payload: any) =>
+const generateRefreshToken = (payload: Omit<UserAuth, 'email'>) =>
 	jwtService.sign(payload, JWT_REFRESH_SECRET!, {
 		expiresIn: JWT_REFRESH_TOKEN_EXPIRE,
 	});

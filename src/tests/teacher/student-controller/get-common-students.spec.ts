@@ -1,16 +1,24 @@
 import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 import { AppDataSource } from '../../../database/data-source';
 import studentController from '../../../controller/teacher/student.controller';
 import { User } from '../../../entities/user.entity';
 import { BUSINESS_MESSAGE, ROLE } from '../../../constants';
+import { Repository } from 'typeorm';
 
 jest.mock('uuid', () => ({ v4: jest.fn(() => 'test-correlation-id') }));
 
 describe('getCommonStudents', () => {
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
-	let mockUserRepository: any;
+	let mockUserRepository: jest.Mocked<Repository<User>>;
+
+	const mockQueryBuilder = {
+		leftJoin: jest.fn().mockReturnThis(),
+		where: jest.fn().mockReturnThis(),
+		andWhere: jest.fn().mockReturnThis(),
+		select: jest.fn().mockReturnThis(),
+		getMany: jest.fn(),
+	};
 
 	beforeEach(() => {
 		mockRequest = {
@@ -24,17 +32,9 @@ describe('getCommonStudents', () => {
 			json: jest.fn(),
 		};
 
-		const mockQueryBuilder = {
-			leftJoin: jest.fn().mockReturnThis(),
-			where: jest.fn().mockReturnThis(),
-			andWhere: jest.fn().mockReturnThis(),
-			select: jest.fn().mockReturnThis(),
-			getMany: jest.fn(),
-		};
-
 		mockUserRepository = {
 			createQueryBuilder: jest.fn(() => mockQueryBuilder),
-		};
+		} as unknown as jest.Mocked<Repository<User>>;
 
 		AppDataSource.getRepository = jest.fn().mockReturnValue(mockUserRepository);
 	});
@@ -57,7 +57,9 @@ describe('getCommonStudents', () => {
 			},
 		];
 
-		mockUserRepository.createQueryBuilder().getMany.mockResolvedValue(mockData);
+		(
+			mockUserRepository.createQueryBuilder().getMany as jest.Mock
+		).mockResolvedValue(mockData);
 
 		await studentController.getCommonStudents(
 			mockRequest as Request,
@@ -68,22 +70,23 @@ describe('getCommonStudents', () => {
 		expect(mockUserRepository.createQueryBuilder).toHaveBeenCalledWith(
 			'teacher'
 		);
-		expect(
-			mockUserRepository.createQueryBuilder().leftJoin
-		).toHaveBeenCalledWith('teacher.students', 'student');
-		expect(mockUserRepository.createQueryBuilder().where).toHaveBeenCalledWith(
+		expect(mockQueryBuilder.leftJoin).toHaveBeenCalledWith(
+			'teacher.students',
+			'student'
+		);
+		expect(mockQueryBuilder.where).toHaveBeenCalledWith(
 			'teacher.role = :role',
 			{ role: ROLE.TEACHER }
 		);
-		expect(
-			mockUserRepository.createQueryBuilder().andWhere
-		).toHaveBeenCalledWith('teacher.email IN (:...teachers)', {
-			teachers: ['teacher1@example.com', 'teacher2@example.com'],
-		});
-		expect(mockUserRepository.createQueryBuilder().select).toHaveBeenCalledWith(
-			['teacher.email', 'student.email']
+		expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+			'teacher.email IN (:...teachers)',
+			{ teachers: ['teacher1@example.com', 'teacher2@example.com'] }
 		);
-		expect(mockUserRepository.createQueryBuilder().getMany).toHaveBeenCalled();
+		expect(mockQueryBuilder.select).toHaveBeenCalledWith([
+			'teacher.email',
+			'student.email',
+		]);
+		expect(mockQueryBuilder.getMany).toHaveBeenCalled();
 
 		expect(mockResponse.status).toHaveBeenCalledWith(200);
 		expect(mockResponse.json).toHaveBeenCalledWith({
@@ -99,7 +102,9 @@ describe('getCommonStudents', () => {
 	});
 
 	it('should return an empty student list if no students are found', async () => {
-		mockUserRepository.createQueryBuilder().getMany.mockResolvedValue([]);
+		(
+			mockUserRepository.createQueryBuilder().getMany as jest.Mock
+		).mockResolvedValue([]);
 
 		await studentController.getCommonStudents(
 			mockRequest as Request,
@@ -116,9 +121,9 @@ describe('getCommonStudents', () => {
 	});
 
 	it('should handle errors and return internal server error', async () => {
-		mockUserRepository
-			.createQueryBuilder()
-			.getMany.mockRejectedValue(new Error('Database error'));
+		(
+			mockUserRepository.createQueryBuilder().getMany as jest.Mock
+		).mockRejectedValue(new Error('Database error'));
 
 		await studentController.getCommonStudents(
 			mockRequest as Request,

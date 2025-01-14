@@ -4,7 +4,7 @@ import studentController from '../../../controller/teacher/student.controller';
 import { ApiResponseModel } from '../../../utils/response.util';
 import { User } from '../../../entities/user.entity';
 import { BUSINESS_MESSAGE } from '../../../constants';
-import { In } from 'typeorm';
+import { Repository } from 'typeorm';
 
 jest.mock('uuid', () => ({
 	v4: jest.fn(() => 'test-correlation-id'),
@@ -15,7 +15,7 @@ jest.mock('../../../utils/response.util');
 describe('getNotificationReceipents', () => {
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
-	let mockUserRepository: any;
+	let mockUserRepository: jest.Mocked<Partial<Repository<User>>>;
 
 	beforeEach(() => {
 		mockRequest = {
@@ -43,7 +43,7 @@ describe('getNotificationReceipents', () => {
 	});
 
 	it('should return bad request if the teacher is not found', async () => {
-		mockUserRepository.findOne.mockResolvedValue(null);
+		(mockUserRepository.findOne as jest.Mock).mockResolvedValue(null);
 
 		await studentController.getNotificationReceipents(
 			mockRequest as Request,
@@ -64,7 +64,9 @@ describe('getNotificationReceipents', () => {
 	});
 
 	it('should handle internal server errors', async () => {
-		mockUserRepository.findOne.mockRejectedValue(new Error('Database error'));
+		(mockUserRepository.findOne as jest.Mock).mockRejectedValue(
+			new Error('Database error')
+		);
 
 		await studentController.getNotificationReceipents(
 			mockRequest as Request,

@@ -54,6 +54,7 @@ const register = async (
 			correlationId
 		);
 	} catch (error) {
+		console.log(error);
 		return ApiResponseModel.toInternalServer(res, correlationId);
 	}
 };
@@ -87,6 +88,8 @@ const getCommonStudents = async (
 			correlationId
 		);
 	} catch (error) {
+		console.log(error);
+
 		return ApiResponseModel.toInternalServer(res, correlationId);
 	}
 };
@@ -128,6 +131,8 @@ const suspend = async (
 			correlationId
 		);
 	} catch (error) {
+		console.log(error);
+
 		return ApiResponseModel.toInternalServer(res, correlationId);
 	}
 };
@@ -181,6 +186,8 @@ const getNotificationReceipents = async (
 			correlationId
 		);
 	} catch (error) {
+		console.log(error);
+
 		return ApiResponseModel.toInternalServer(res, correlationId);
 	}
 };

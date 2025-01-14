@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import asyncHandler from 'express-async-handler';
 
 const asyncHandlerMiddleware = (
-	handler: (req: Request, res: Response, next: NextFunction) => Promise<any>
+	handler: (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) => Promise<Response>
 ) =>
 	asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
 		try {
