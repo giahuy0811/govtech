@@ -31,30 +31,13 @@ const studentRouter = express.Router();
  *                                  required: true
  *                              students:
  *                                  type: array
- *                                  example: string
  *                                  items:
  *                                   type: string
- *                                   example: student@gmail.com
+ *                                   example: studentjon@gmail.com
  *                                  required: true
  *          responses:
- *              200:
+ *              204:
  *                  description: Success
- *                  content:
- *                      application/json:
- *                          schema:
- *                              type: object
- *                              properties:
- *                                  correlationId:
- *                                      type: string
- *                                  status:
- *                                      type: number
- *                                  error:
- *                                      type: 'null'
- *                                  data:
- *                                      type: object
- *                                      properties:
- *                                          success:
- *                                            type: boolean
  *              400:
  *                  description: Bad request
  *              500:
@@ -88,19 +71,13 @@ studentRouter.post(
  *                          schema:
  *                              type: object
  *                              properties:
- *                                  correlationId:
- *                                    type: string
- *                                  data:
- *                                      type: object
- *                                      properties:
- *                                          students:
- *                                            type: array
- *                                            items:
- *                                              type: string
- *                                              example: studenthon@gmail.com
- *
- *              404:
- *                  description: Not found
+ *                               students:
+ *                                  type: array
+ *                                  items:
+ *                                   type: string
+ *                                   example: studentjon@gmail.com
+ *              401:
+ *                  description: Bad request
  *              500:
  *                  description: Internal server error
  */
@@ -124,29 +101,12 @@ studentRouter.get(
  *                      schema:
  *                          type: object
  *                          properties:
- *                              teacher:
- *                                  type: string
- *                                  example: teacher@gmail.com
- *                                  required: true
- *                              students:
+ *                              student:
  *                                  type: string
  *                                  example: studentjon@gmail.com
  *          responses:
- *              200:
+ *              204:
  *                  description: Success
- *                  content:
- *                      application/json:
- *                          schema:
- *                              type: object
- *                              properties:
- *                                  correlationId:
- *                                      type: string
- *                                  data:
- *                                      type: object
- *                                      properties:
- *                                          suspended:
- *                                            type: boolean
- *                                            example: true
  *              400:
  *                  description: Bad request
  *              500:
@@ -176,7 +136,7 @@ studentRouter.post(
  *                                  type: string
  *                                  example: teacher@gmail.com
  *                                  required: true
- *                              students:
+ *                              notification:
  *                                  type: string
  *                                  example: Hello students! @studenthon@gmail.com studentjon@gmail.com
  *                                  required: true
@@ -188,16 +148,11 @@ studentRouter.post(
  *                          schema:
  *                              type: object
  *                              properties:
- *                                  correlationId:
- *                                      type: string
- *                                  data:
- *                                      type: object
- *                                      properties:
- *                                          receipents:
- *                                            type: array
- *                                            items:
- *                                              type: string
- *                                              example: studenthon@gmail.com
+ *                               students:
+ *                                  type: array
+ *                                  items:
+ *                                   type: string
+ *                                   example: studentjon@gmail.com
  *              400:
  *                  description: Bad request
  *              500:
