@@ -101,4 +101,5 @@ export default {
 	suspendStudent,
 	findByEmail,
 	getStudentsForNotification,
+	mapStudentsToEmailList,
 };

@@ -13,6 +13,9 @@ export class BaseEntity {
 	@Column()
 	password: string;
 
+	@Column({ default: null })
+	refreshToken: string;
+
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 	createdAt: Date;
 
