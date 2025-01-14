@@ -22,8 +22,7 @@ const signIn = async (
 		if (user === null)
 			return ApiResponseModel.toBadRequest(
 				res,
-				BUSINESS_MESSAGE.INVALID_SIGN_IN,
-				correlationId
+				BUSINESS_MESSAGE.INVALID_SIGN_IN
 			);
 
 		const isPasswordValid = bcrypt.compareSync(password, user.password);
@@ -31,8 +30,7 @@ const signIn = async (
 		if (!isPasswordValid)
 			return ApiResponseModel.toBadRequest(
 				res,
-				BUSINESS_MESSAGE.INVALID_SIGN_IN,
-				correlationId
+				BUSINESS_MESSAGE.INVALID_SIGN_IN
 			);
 
 		const signTokenPayload = {
@@ -42,7 +40,7 @@ const signIn = async (
 
 		const refreshToken = jwtService.generateRefreshToken(signTokenPayload);
 
-		user.refreshToken = refreshToken;
+		// user.refreshToken = refreshToken;
 
 		await userRepository.save(user);
 

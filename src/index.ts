@@ -11,6 +11,7 @@ import teacherRouter from './routes/teacher/teacher.route';
 import authMiddleware from './middleware/auth.middleware';
 import roleMiddleware from './middleware/role.middleware';
 import { JoiError } from './types';
+import seedRouter from './routes/seed/seed.route';
 
 const app = express();
 const swaggerSpec = swaggerJSDoc(apiOptions);
@@ -29,7 +30,8 @@ app.get('/', (_: Request, res: Response) => {
 	res.send('Govtech app');
 });
 
-app.use('/api/auth', authRouter);
+// app.use('/api/auth', authRouter);
+app.use('/api/seed', seedRouter);
 app.use('/api', authMiddleware, roleMiddleware([ROLE.TEACHER]), teacherRouter);
 
 app.use((err: unknown, _: Request, res: Response, next: NextFunction): void => {
