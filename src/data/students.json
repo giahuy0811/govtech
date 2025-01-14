@@ -1,0 +1,32 @@
+[
+	{
+		"name": "Jon",
+		"email": "studentjon@gmail.com",
+		"password": "123456@Aa"
+	},
+	{
+		"name": "Hon",
+		"email": "studenthon@gmail.com",
+		"password": "123456@Aa"
+	},
+	{
+		"name": "Student1",
+		"email": "commonstudent1@gmail.com",
+		"password": "123456@Aa"
+	},
+	{
+		"name": "Student1",
+		"email": "commonstudent2@gmail.com",
+		"password": "123456@Aa"
+	},
+	{
+		"name": "Student Only",
+		"email": "student_only_under_teacher_ken@gmail.com",
+		"password": "123456@Aa"
+	},
+	{
+		"name": "Mary",
+		"email": "studentmary@gmail.com",
+		"password": "123456@Aa"
+	}
+]
